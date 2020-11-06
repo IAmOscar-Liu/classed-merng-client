@@ -1,3 +1,50 @@
+import React from "react";
+import { graphql, ChildDataProps } from "react-apollo";
+
+import GET_POST from "../graphql/queries/getPost";
+import { GetPostResponse } from "../graphql/types";
+
+type InputProps = {
+  postId: string;
+  randomStr: string;
+};
+
+type Variables = {
+  postId: string;
+};
+
+type ChildProps = ChildDataProps<InputProps, GetPostResponse, Variables>;
+
+const SinglePost = graphql<InputProps, GetPostResponse, Variables, ChildProps>(
+  GET_POST,
+  {
+    options: ({ postId }) => ({
+      variables: { postId },
+    }),
+    // props: ({ data, ownProps }):any => ({
+    //   ...data,
+    //   randomStr: ownProps.randomStr,
+    //   postId: ownProps.postId,
+    // }),
+  }
+);
+
+export default SinglePost(
+  ({ data: { loading, error, getPost: post }, randomStr, postId }) => {
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error</div>;
+    // console.log(post);
+    return (
+      <div>
+        <h1>Post ID: {postId}</h1>
+        <p>Username: {post?.username}</p>
+        <p>body: {post?.body}</p>
+        <p>Random String: {randomStr}</p>
+      </div>
+    );
+  }
+);
+
 {
   "name": "client",
   "version": "0.1.0",
@@ -11,8 +58,12 @@
     "@types/node": "^12.19.1",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
     "apollo-link-context": "^1.0.20",
+    "apollo-link-http": "^1.5.17",
     "graphql": "^15.3.0",
+    "graphql-tag": "^2.11.0",
     "jwt-decode": "^3.0.0",
     "moment": "^2.29.1",
     "react": "^17.0.1",
@@ -22,7 +73,6 @@
     "react-scripts": "4.0.0",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.0",
-    "subscriptions-transport-ws": "^0.9.18",
     "typescript": "^4.0.3",
     "web-vitals": "^0.2.4"
   },
